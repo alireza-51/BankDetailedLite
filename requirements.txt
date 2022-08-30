@@ -5,3 +5,5 @@ djangorestframework
 djangorestframework-simplejwt
 markdown
 django-filter
+pyyaml
+uritemplate

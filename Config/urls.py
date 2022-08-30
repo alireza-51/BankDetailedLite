@@ -14,8 +14,26 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.schemas import get_schema_view
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('branch.api.urls')),
+    path('api/', include('deposit.api.urls')),
+    path('api/', include('user.api.urls')),
+    path('api/', include('loan.api.urls')),
+    path('api/login/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/login/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('openapi/', get_schema_view(
+        title="Bank Detailed Sim",
+        description="API for bank simulation",
+        version="1.0.0"
+    ), name='openapi-schema'),
 ]

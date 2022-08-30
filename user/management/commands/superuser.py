@@ -1,5 +1,6 @@
 from getpass import getpass
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 from django.contrib.auth import get_user_model
 
 
@@ -15,8 +16,9 @@ class Command(BaseCommand):
         email = input('Email: ')
         User = get_user_model()
         try:
-            superuser = User.objects.get(national_no=nn)
-            raise CommandError('User with this national numbe exists.')
+            superuser = User.objects.get(Q(national_no=nn) | Q(username=username))
+            if superuser:
+                raise CommandError('User with this national number or username exists.')
         except User.DoesNotExist:
             superuser = User.objects.create(
                 national_no=nn,
@@ -37,4 +39,5 @@ class Command(BaseCommand):
                     continue
             superuser.set_password(password)
             superuser.save()
+            self.stdout.write(self.style.SUCCESS('Super User created.'))
             
