@@ -1,3 +1,13 @@
+from unicodedata import name
 from django.test import TestCase
+from .models import Branch
 
-# Create your tests here.
+
+class TestBranch(TestCase):
+    def setUp(self) -> None:
+        self.branch = Branch.objects.create(name='test', city='Tehran', address = 'test...')
+
+    def test_branch(self):
+        self.assertEqual(self.branch.name, 'test')
+        self.assertEqual(self.branch.city, 'Tehran')
+        self.assertEqual(self.branch.address, 'test...')
