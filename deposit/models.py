@@ -36,5 +36,7 @@ class Withdrawal(models.Model):
         return '{} :{}'.format(self.deposit.account_no, self.amount)
 
     def save(self, *args, **kwargs) -> None:
-        # update the balance in the deposit account
+        # TODO: update the balance in the deposit account
         return super().save(*args, **kwargs)
+
+# TODO: transfer model
