@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Deposit, Withdrawal
+from deposit.models import Deposit, Withdrawal
 from branch.models import Branch
 from django.contrib.auth import get_user_model
 

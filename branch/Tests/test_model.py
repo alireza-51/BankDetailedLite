@@ -1,6 +1,5 @@
-from unicodedata import name
 from django.test import TestCase
-from .models import Branch
+from branch.models import Branch
 
 
 class TestBranch(TestCase):

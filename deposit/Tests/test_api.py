@@ -1,11 +1,10 @@
-import email
 from rest_framework import test, status
 from django.test import TestCase
 from branch.models import Branch
 from django.contrib.auth import get_user_model
 
 from deposit.models import Deposit
-from .serializers import DepositSerializer
+from deposit.api.serializers import DepositSerializer
 
 User = get_user_model()
 
@@ -80,9 +79,9 @@ class TestDepositAPI(TestCase):
         self.assertTrue(status.is_client_error(res.status_code))
 
     def test_api_admin_access(self):
-        customer_client = test.APIClient()
-        customer_client.login(username=self.admin_user.username, password='test')
-        res = customer_client.get(self.uri)
+        admin_client = test.APIClient()
+        admin_client.login(username=self.admin_user.username, password='test')
+        res = admin_client.get(self.uri)
         self.assertTrue(status.is_success(res.status_code))
         
         data = DepositSerializer(Deposit.objects.all(), many=True).data
@@ -91,12 +90,12 @@ class TestDepositAPI(TestCase):
         push_data = dict(data[0])
         push_data['balance'] = float(push_data['balance']) + 500
         uri = self.uri + str(push_data['id']) + '/'
-        res = customer_client.put(uri, data=push_data)
+        res = admin_client.put(uri, data=push_data)
         self.assertTrue(status.is_success(res.status_code))
 
         push_data.pop('id')
-        res = customer_client.post(self.uri, data=push_data)
+        res = admin_client.post(self.uri, data=push_data)
         self.assertTrue(status.is_success(res.status_code))
 
-        res = customer_client.delete(uri)
+        res = admin_client.delete(uri)
         self.assertTrue(status.is_success(res.status_code))

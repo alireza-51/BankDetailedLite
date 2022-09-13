@@ -2,7 +2,7 @@ from django.db import models
 from utils.incremental_id_picker import increment_id_number
 from django.contrib.auth import get_user_model
 from branch.models import Branch
-from deposit.models import Withdrawal
+from deposit.models import Deposit, Withdrawal
 
 User = get_user_model()
 
@@ -17,6 +17,9 @@ class Loan(models.Model):
         return '{}'.format(self.loan_no)
 
     def save(self, *args, **kwargs) -> None:
+        deposit = Deposit.objects.filter(branch=self.branch, customer=self.customer)
+        if not deposit:
+            raise ValueError('User has no deposit in this branch')
         if not self.loan_no:
             self.loan_no = increment_id_number(Loan, 'loan_no', digit=8)
         return super().save(*args, **kwargs)

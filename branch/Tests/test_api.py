@@ -2,7 +2,7 @@ from rest_framework import test, status
 from django.test import TestCase
 from branch.models import Branch
 from django.contrib.auth import get_user_model
-from .serializers import BranchSerializer
+from branch.api.serializers import BranchSerializer
 
 class TestBranchAPI(TestCase):
     def setUp(self) -> None:
