@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             address=validated_data['address'],
-            email=validated_data['email'],
+            email=validated_data.get('email', None),
             typ=0,
         )
         user.set_password(validated_data['password'])
