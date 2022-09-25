@@ -26,17 +26,26 @@ class Withdrawal(models.Model):
         DEPOSIT = 0, _('Deposit')
         WITHDRAW = 1, _('Withdraw')
     
-    deposit = models.OneToOneField(Deposit, on_delete=models.CASCADE)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    deposit = models.ForeignKey(Deposit, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=20, decimal_places=1)
     typ = models.IntegerField(choices=Typ.choices, null=False, blank=False)
-    datetime = models.DateTimeField()
+    datetime = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return '{} :{}'.format(self.deposit.account_no, self.amount)
 
     def save(self, *args, **kwargs) -> None:
-        # TODO: update the balance in the deposit account
+        if self.typ == self.Typ.WITHDRAW:
+            if self.amount > self.deposit.balance:
+                raise ValueError('You are trying to withdraw more than your balance.')
+            deposit = self.deposit
+            deposit.balance = deposit.balance - self.amount
+            deposit.save()
+        if self.typ == self.Typ.DEPOSIT:
+            deposit = self.deposit
+            deposit.balance = deposit.balance + self.amount
+            deposit.save()
         return super().save(*args, **kwargs)
 
 # TODO: transfer model
