@@ -1,5 +1,6 @@
+from email.policy import default
 from django.utils.translation import gettext_lazy as _
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth import get_user_model
 from branch.models import Branch
 from utils.incremental_id_picker import increment_id_number
@@ -36,16 +37,28 @@ class Withdrawal(models.Model):
         return '{} :{}'.format(self.deposit.account_no, self.amount)
 
     def save(self, *args, **kwargs) -> None:
-        if self.typ == self.Typ.WITHDRAW:
-            if self.amount > self.deposit.balance:
-                raise ValueError('You are trying to withdraw more than your balance.')
-            deposit = self.deposit
-            deposit.balance = deposit.balance - self.amount
-            deposit.save()
-        if self.typ == self.Typ.DEPOSIT:
-            deposit = self.deposit
-            deposit.balance = deposit.balance + self.amount
-            deposit.save()
-        return super().save(*args, **kwargs)
+        with transaction.atomic():
+            if self.typ == self.Typ.WITHDRAW:
+                if self.amount > self.deposit.balance:
+                    raise ValueError('You are trying to withdraw more than your balance.')
+                deposit = self.deposit
+                deposit.balance = deposit.balance - self.amount
+                deposit.save()
+            if self.typ == self.Typ.DEPOSIT:
+                deposit = self.deposit
+                deposit.balance = deposit.balance + self.amount
+                deposit.save()
+            return super().save(*args, **kwargs)
 
-# TODO: transfer model
+class Transfer(models.Model):
+    source = models.ForeignKey(Deposit, on_delete=models.CASCADE, related_name='source')
+    destination = models.ForeignKey(Deposit, on_delete = models.CASCADE, related_name='destination')
+    amount = models.DecimalField(max_digits=20, decimal_places=1)
+    confirmed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs) -> None:
+        if self.source.balance < self.amount:
+            raise ValueError('You are trying to transfer more than your balance.')
+        self.confirmed = True
+        return super().save(*args, **kwargs)

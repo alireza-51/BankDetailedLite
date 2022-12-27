@@ -32,7 +32,6 @@ class Command(BaseCommand):
             while password == None:
                 password = getpass('password: ')
                 password2 = getpass('password (again): ')
-                print('password : {}'.format(password))
                 if password != password2:
                     self.stderr.write("Error: Password didn't match")
                     password = None
